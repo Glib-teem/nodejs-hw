@@ -25,21 +25,21 @@ app.use(cors());
 app.use(express.json());
 
 // 4. Logger - логує всі HTTP-запити
-// Завдяки правильному NODE_ENV, тут на Render буде стислий JSON-лог
+
 app.use(
   pino(
     NODE_ENV === 'development'
       ? {
-        transport: {
-          target: 'pino-pretty',
-          options: {
-            colorize: true,
+          transport: {
+            target: 'pino-pretty',
+            options: {
+              colorize: true,
+            },
           },
-        },
-      }
+        }
       : {
-        level: 'info',
-      },
+          level: 'info',
+        },
   ),
 );
 

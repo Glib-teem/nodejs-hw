@@ -4,8 +4,8 @@ import helmet from 'helmet';
 import pino from 'pino-http';
 import dotenv from 'dotenv';
 
-// Завантажую змінні з .env файлу
-dotenv.config();
+// Запобігаю перезапису NODE_ENV та завантажую змінні з .env файлу.
+dotenv.config({ override: false });
 
 // Створюю Express додаток
 const app = express();
@@ -78,6 +78,9 @@ app.use((req, res) => {
 
 // Middleware для обробки помилок 500
 app.use((err, req, res, _next) => {
+  // Використовую захищене повідомлення для Production
+  const prodMessage = 'Oops, we had an error, sorry 🤫';
+
   if (NODE_ENV === 'development') {
     console.error('Error details:', err);
     res.status(500).json({
@@ -85,9 +88,9 @@ app.use((err, req, res, _next) => {
       stack: err.stack,
     });
   } else {
-    console.error('Error:', err.message);
+    console.error('Error:', err.message); // Логую реальну помилку на сервері
     res.status(500).json({
-      message: err.message,
+      message: prodMessage, // Показую клієнту безпечне повідомлення
     });
   }
 });

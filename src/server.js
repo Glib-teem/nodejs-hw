@@ -4,13 +4,13 @@ import helmet from 'helmet';
 import pino from 'pino-http';
 import dotenv from 'dotenv';
 
-// Завантажую змінні оточення з .env файлу
-dotenv.config({ override: false });
+// Завантажуємо змінні з .env файлу
+dotenv.config();
 
-// Створюю Express додаток
+// Створюємо Express додаток
 const app = express();
 
-// Отримую порт та середовище із змінних оточення
+// Отримуємо порт та середовище із змінних оточення
 const PORT = process.env.PORT || 3000;
 const NODE_ENV = process.env.NODE_ENV || 'development';
 
@@ -26,22 +26,19 @@ app.use(cors());
 app.use(express.json());
 
 // 4. Logger - логує всі HTTP-запити
-
+// У production логи простіші, у development - з кольорами
 app.use(
-  pino(
-    NODE_ENV === 'development'
-      ? {
-        transport: {
-          target: 'pino-pretty',
-          options: {
-            colorize: true,
-          },
-        },
-      }
-      : {
-        level: 'info',
-      },
-  ),
+  pino({
+    transport:
+      NODE_ENV === 'development'
+        ? {
+            target: 'pino-pretty',
+            options: {
+              colorize: true,
+            },
+          }
+        : undefined,
+  })
 );
 
 // ====== МАРШРУТИ ======
@@ -61,7 +58,7 @@ app.get('/notes/:noteId', (req, res) => {
   });
 });
 
-// GET /test-error - тестовий маршрут для імітації помилки
+// GET /test-error - тестовий маршрут для помилки
 app.get('/test-error', () => {
   throw new Error('Simulated server error');
 });
@@ -76,19 +73,20 @@ app.use((req, res) => {
 });
 
 // Middleware для обробки помилок 500
+// Умовна обробка залежно від середовища
 app.use((err, req, res, _next) => {
-  const prodMessage = 'Oops, we had an error, sorry 🤫';
-
+  // У development показуємо повний stack trace
   if (NODE_ENV === 'development') {
     console.error('Error details:', err);
     res.status(500).json({
       message: err.message,
-      stack: err.stack,
+      stack: err.stack, // Показуємо stack trace тільки в dev
     });
   } else {
+    // У production показуємо тільки повідомлення
     console.error('Error:', err.message);
     res.status(500).json({
-      message: prodMessage,
+      message: err.message,
     });
   }
 });

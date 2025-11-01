@@ -4,15 +4,16 @@ import helmet from 'helmet';
 import pino from 'pino-http';
 import dotenv from 'dotenv';
 
-// Завантажуємо змінні з .env файлу
+// Завантажую змінні з .env файлу
 dotenv.config();
 
-// Створюємо Express додаток
+// Створюю Express додаток
 const app = express();
 
-// Отримуємо порт та середовище із змінних оточення
+// Отримую порт та середовище із змінних оточення
 const PORT = process.env.PORT || 3000;
 const NODE_ENV = process.env.NODE_ENV || 'development';
+const isProd = NODE_ENV === 'production';
 
 // ====== MIDDLEWARE ======
 
@@ -26,19 +27,22 @@ app.use(cors());
 app.use(express.json());
 
 // 4. Logger - логує всі HTTP-запити
-// У production логи простіші, у development - з кольорами
+
 app.use(
-  pino({
-    transport:
-      NODE_ENV === 'development'
-        ? {
-            target: 'pino-pretty',
-            options: {
-              colorize: true,
-            },
-          }
-        : undefined,
-  })
+  pino(
+    NODE_ENV === 'development'
+      ? {
+        transport: {
+          target: 'pino-pretty',
+          options: {
+            colorize: true,
+          },
+        },
+      }
+      : {
+        level: 'info',
+      },
+  ),
 );
 
 // ====== МАРШРУТИ ======
@@ -58,7 +62,7 @@ app.get('/notes/:noteId', (req, res) => {
   });
 });
 
-// GET /test-error - тестовий маршрут для помилки
+// GET /test-error - тестовий маршрут для імітації помилки
 app.get('/test-error', () => {
   throw new Error('Simulated server error');
 });
@@ -73,20 +77,20 @@ app.use((req, res) => {
 });
 
 // Middleware для обробки помилок 500
-// Умовна обробка залежно від середовища
+
 app.use((err, req, res, _next) => {
-  // У development показуємо повний stack trace
-  if (NODE_ENV === 'development') {
+  if (isProd) {
+    // Production: загальне повідомлення без деталей
+    console.error('Error occurred:', err.message);
+    res.status(500).json({
+      message: 'Oops, we had an error, sorry 🤫',
+    });
+  } else {
+    // Development: повні деталі для дебагу
     console.error('Error details:', err);
     res.status(500).json({
       message: err.message,
-      stack: err.stack, // Показуємо stack trace тільки в dev
-    });
-  } else {
-    // У production показуємо тільки повідомлення
-    console.error('Error:', err.message);
-    res.status(500).json({
-      message: err.message,
+      stack: err.stack,
     });
   }
 });

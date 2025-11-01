@@ -4,7 +4,6 @@ import helmet from 'helmet';
 import pino from 'pino-http';
 import dotenv from 'dotenv';
 
-// Запобігаю перезапису NODE_ENV та завантажую змінні з .env файлу.
 dotenv.config({ override: false });
 
 // Створюю Express додаток
@@ -26,8 +25,7 @@ app.use(cors());
 app.use(express.json());
 
 // 4. Logger - логує всі HTTP-запити
-// У development - детальні логи
-// У production - стислі JSON логи
+// Завдяки правильному NODE_ENV, тут на Render буде стислий JSON-лог
 app.use(
   pino(
     NODE_ENV === 'development'
@@ -78,19 +76,18 @@ app.use((req, res) => {
 
 // Middleware для обробки помилок 500
 app.use((err, req, res, _next) => {
-  // Використовую захищене повідомлення для Production
-  const prodMessage = 'Oops, we had an error, sorry 🤫';
+  const prodMessage = 'Oops, we had an error, sorry 🤫'; // Development: виводимо деталі помилки
 
   if (NODE_ENV === 'development') {
     console.error('Error details:', err);
     res.status(500).json({
       message: err.message,
       stack: err.stack,
-    });
+    }); // Production: виводимо загальне, безпечне повідомлення
   } else {
-    console.error('Error:', err.message); // Логую реальну помилку на сервері
+    console.error('Error:', err.message);
     res.status(500).json({
-      message: prodMessage, // Показую клієнту безпечне повідомлення
+      message: prodMessage, // <--- Виводимо безпечне повідомлення
     });
   }
 });

@@ -1,52 +1,33 @@
 import js from '@eslint/js';
+import globals from 'globals';
 
 export default [
   js.configs.recommended,
   {
+    files: ['**/*.{js,mjs,cjs}'],
     languageOptions: {
       ecmaVersion: 2022,
       sourceType: 'module',
-      globals: {
-        console: 'readonly',
-        process: 'readonly',
-        __dirname: 'readonly',
-        __filename: 'readonly',
-        module: 'readonly',
-        require: 'readonly',
-        exports: 'readonly',
-      },
+      globals: globals.node,
     },
     rules: {
-      // Стиль коду
-      semi: ['error', 'always'],
+      // Обов'язкові правила
+      semi: 'error',
+      'no-unused-vars': ['error', { args: 'none' }],
+      'no-undef': 'error',
+
+      // Додаткові правила
       quotes: ['error', 'single'],
       indent: ['error', 2],
       'comma-dangle': ['error', 'always-multiline'],
 
-      // Невикористовувані змінні
-      'no-unused-vars': [
-        'warn',
-        {
-          argsIgnorePattern: '^_',
-          varsIgnorePattern: '^_',
-          caughtErrorsIgnorePattern: '^_',
-        },
-      ],
-
-      // Помилки
-      'no-console': 'off',
-      'no-debugger': 'warn',
-      'no-alert': 'warn',
-
-      // Best practices
       eqeqeq: ['error', 'always'],
       curly: ['error', 'all'],
       'no-var': 'error',
       'prefer-const': 'error',
-      'prefer-arrow-callback': 'warn',
-      'no-param-reassign': 'warn',
+      'no-console': 'off',
+      'no-debugger': 'warn',
 
-      // ES6+
       'arrow-spacing': ['error', { before: true, after: true }],
       'no-duplicate-imports': 'error',
       'object-shorthand': ['warn', 'always'],

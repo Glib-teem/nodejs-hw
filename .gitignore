@@ -1,33 +1,124 @@
-# Залежності
+# 1. Залежності та Бібліотеки - Node modules directory
 node_modules/
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
+jspm_packages/
+web_modules/
+bower_components/
 
-# Змінні оточення
+# Yarn v3
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions
+
+# Output of 'npm pack'
+*.tgz
+
+# 2. Файли Змінних Оточення та Секрети -  dotenv environment variable files
 .env
+.env.*
+!.env.example
 .env.local
 .env.development
 .env.production
 
-# Build файли
+# 3. Логи та Звіти (Node.js/NPM/Yarn)
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+vite.config.js.timestamp-*
+vite.config.ts.timestamp-*
+
+# Diagnostic reports (https://nodejs.org/api/report.html)
+report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Optional REPL history
+.node_repl_history
+
+
+# 4. Збірка, Компіляція та Кеш - # Build directories
 dist/
 build/
+out
 
-# Логи
-*.log
-logs/
+# Compiled binary addons
+build/Release
 
-# OS файли
+# Next.js build output
+.next
+
+# Nuxt.js build / generate output
+.nuxt
+
+# Gatsby files
+.cache/
+public
+
+# Vuepress, Sveltekit, Vitepress
+.vuepress/dist
+.vuepress/cache
+.temp
+.svelte-kit/
+**/.vitepress/dist
+**/.vitepress/cache
+
+# Parcel-bundler cache
+.cache/
+.parcel-cache
+
+# Docusaurus
+.docusaurus
+
+# FuseBox
+.fusebox/
+
+# DynamoDB Local files
+.dynamodb/
+
+
+# 5. Тестування та Покриття Коду
+coverage
+*.lcov
+.nyc_output
+.grunt
+lib-cov
+
+# Stores VSCode versions used for testing VSCode extensions
+.vscode-test
+
+
+
+# 6. Кеш Середовищ Розробки (IDE) та OS-Файли -  IDE (VSCode, JetBrains/IDEA)
+.vscode/
+.idea/
+
+# OS files
 .DS_Store
 Thumbs.db
 
-# IDE
-.vscode/
-.idea/
+# TypeScript cache
+*.tsbuildinfo
+
+# Optional npm/eslint/stylelint caches
+.npm
+.eslintcache
+.stylelintcache
+
+# TernJS port file
+.tern-port
+
+# Тимчасові файли (Vim/Sublime Text)
 *.swp
 *.swo
-
-# Тимчасові файли
 *.tmp
-.cache/

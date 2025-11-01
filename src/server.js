@@ -4,8 +4,8 @@ import helmet from 'helmet';
 import pino from 'pino-http';
 import dotenv from 'dotenv';
 
-// Завантажую змінні з .env файлу
-dotenv.config();
+// Завантажую змінні оточення з .env файлу
+dotenv.config({ override: false });
 
 // Створюю Express додаток
 const app = express();
@@ -26,8 +26,7 @@ app.use(cors());
 app.use(express.json());
 
 // 4. Logger - логує всі HTTP-запити
-// У development - детальні логи
-// У production - стислі JSON логи
+
 app.use(
   pino(
     NODE_ENV === 'development'
@@ -78,6 +77,8 @@ app.use((req, res) => {
 
 // Middleware для обробки помилок 500
 app.use((err, req, res, _next) => {
+  const prodMessage = 'Oops, we had an error, sorry 🤫';
+
   if (NODE_ENV === 'development') {
     console.error('Error details:', err);
     res.status(500).json({
@@ -87,7 +88,7 @@ app.use((err, req, res, _next) => {
   } else {
     console.error('Error:', err.message);
     res.status(500).json({
-      message: err.message,
+      message: prodMessage,
     });
   }
 });

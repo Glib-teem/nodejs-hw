@@ -9,6 +9,7 @@ yarn-error.log*
 .env.local
 .env.development
 .env.production
+.env.example
 
 # Build файли
 dist/

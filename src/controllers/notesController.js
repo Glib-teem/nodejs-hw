@@ -8,13 +8,12 @@ export const getAllNotes = async (req, res) => {
 };
 
 // GET /notes/:noteId - Отримати одну нотатку за ID
-export const getNoteById = async (req, res, next) => {
+export const getNoteById = async (req, res) => {
   const { noteId } = req.params;
   const note = await Note.findById(noteId);
 
   if (!note) {
-    next(createHttpError(404, 'Note not found'));
-    return;
+    throw createHttpError(404, 'Note not found');
   }
 
   res.status(200).json(note);
@@ -27,7 +26,7 @@ export const createNote = async (req, res) => {
 };
 
 // PATCH /notes/:noteId - Оновити нотатку
-export const updateNote = async (req, res, next) => {
+export const updateNote = async (req, res) => {
   const { noteId } = req.params;
 
   const note = await Note.findOneAndUpdate(
@@ -37,15 +36,14 @@ export const updateNote = async (req, res, next) => {
   );
 
   if (!note) {
-    next(createHttpError(404, 'Note not found'));
-    return;
+    throw createHttpError(404, 'Note not found');
   }
 
   res.status(200).json(note);
 };
 
 // DELETE /notes/:noteId - Видалити нотатку
-export const deleteNote = async (req, res, next) => {
+export const deleteNote = async (req, res) => {
   const { noteId } = req.params;
 
   const note = await Note.findOneAndDelete({
@@ -53,8 +51,7 @@ export const deleteNote = async (req, res, next) => {
   });
 
   if (!note) {
-    next(createHttpError(404, 'Note not found'));
-    return;
+    throw createHttpError(404, 'Note not found');
   }
 
   res.status(200).json(note);

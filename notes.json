@@ -1,0 +1,52 @@
+[
+  {
+    "title": "Complete project documentation",
+    "content": "Write comprehensive documentation for the new API endpoints and update the README file",
+    "tag": "Work"
+  },
+  {
+    "title": "Team meeting notes",
+    "content": "Discuss Q4 objectives, review sprint progress, and plan upcoming features",
+    "tag": "Meeting"
+  },
+  {
+    "title": "Buy groceries",
+    "content": "Milk, bread, eggs, vegetables, fruits, and cleaning supplies",
+    "tag": "Shopping"
+  },
+  {
+    "title": "Project idea: Task Manager",
+    "content": "Build a collaborative task management app with real-time updates and team features",
+    "tag": "Ideas"
+  },
+  {
+    "title": "Vacation planning",
+    "content": "Research destinations, book flights and hotels, create itinerary for summer vacation",
+    "tag": "Travel"
+  },
+  {
+    "title": "Birthday gift for mom",
+    "content": "Find a special gift, order flowers, plan family dinner celebration",
+    "tag": "Personal"
+  },
+  {
+    "title": "Monthly budget review",
+    "content": "Track expenses, review investments, update savings goals and financial plan",
+    "tag": "Finance"
+  },
+  {
+    "title": "Gym workout routine",
+    "content": "Monday: Chest, Tuesday: Back, Wednesday: Legs, Thursday: Shoulders, Friday: Arms",
+    "tag": "Health"
+  },
+  {
+    "title": "Client presentation",
+    "content": "Prepare slides, rehearse demo, gather feedback from team before final presentation",
+    "tag": "Important"
+  },
+  {
+    "title": "Fix bug in authentication",
+    "content": "Debug login issue, update password validation, test edge cases",
+    "tag": "Todo"
+  }
+]

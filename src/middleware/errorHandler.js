@@ -15,7 +15,7 @@ export const errorHandler = (err, req, res, _next) => {
     });
   }
 
-  // Усі інші помилки
+  // Усі інші помилки - як внутрішні (500)
   res.status(500).json({
     message: isProd ? 'Oops, we had an error, sorry 🤫' : err.message,
   });

@@ -6,9 +6,9 @@ import { connectMongoDB } from './db/connectMongoDB.js';
 import { logger } from './middleware/logger.js';
 import { notFoundHandler } from './middleware/notFoundHandler.js';
 import { errorHandler } from './middleware/errorHandler.js';
-import studentsRoutes from './routes/studentsRoutes.js';
+import notesRoutes from './routes/notesRoutes.js';
 
-// Завантажую змінні з .env файлу
+// Завантажую змінні з .env
 dotenv.config();
 
 const app = express();
@@ -25,8 +25,8 @@ app.use(express.json());
 app.use(cors());
 
 // ====== МАРШРУТИ ======
-// Підключаю маршрути для роботи зі студентами
-app.use(studentsRoutes);
+// Підключаю маршрути для роботи з нотатками
+app.use(notesRoutes);
 
 // ====== ОБРОБКА ПОМИЛОК ======
 // Middleware для обробки 404 (маршрут не знайдено)
@@ -36,7 +36,7 @@ app.use(notFoundHandler);
 app.use(errorHandler);
 
 // ====== БД ТА ЗАПУСК СЕРВЕРА ======
-// Підключення до MongoDB перед запуском сервера
+// Підключаюся до MongoDB перед запуском сервера
 await connectMongoDB();
 
 app.listen(PORT, () => {

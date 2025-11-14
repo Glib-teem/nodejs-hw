@@ -1,6 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
+import { errors } from 'celebrate';
 
 import { connectMongoDB } from './db/connectMongoDB.js';
 import { logger } from './middleware/logger.js';
@@ -31,6 +32,9 @@ app.use(notesRoutes);
 // ====== ОБРОБКА ПОМИЛОК ======
 // Middleware для обробки 404 (маршрут не знайдено)
 app.use(notFoundHandler);
+
+// Middleware для обробки помилок валідації від celebrate
+app.use(errors());
 
 // Middleware для обробки помилок 500
 app.use(errorHandler);

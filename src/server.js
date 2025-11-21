@@ -1,6 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
+import cookieParser from 'cookie-parser'; //
 import { errors } from 'celebrate';
 
 import { connectMongoDB } from './db/connectMongoDB.js';
@@ -8,14 +9,16 @@ import { logger } from './middleware/logger.js';
 import { notFoundHandler } from './middleware/notFoundHandler.js';
 import { errorHandler } from './middleware/errorHandler.js';
 import notesRoutes from './routes/notesRoutes.js';
+import authRoutes from './routes/authRoutes.js';
 
 // Завантажую змінні з .env
 dotenv.config();
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3030;
 
 // ====== MIDDLEWARE ======
+
 // 1. Logger - логування HTTP-запитів
 app.use(logger);
 
@@ -23,13 +26,26 @@ app.use(logger);
 app.use(express.json());
 
 // 3. CORS - запити з інших доменів
-app.use(cors());
+app.use(
+  cors({
+    origin: process.env.FRONTEND_URL || '*', // URL фронтенду
+    credentials: true, // КРИТИЧНО для cookies!
+  }),
+);
+
+// 4. Cookie Parser - обробка cookies
+app.use(cookieParser());
 
 // ====== МАРШРУТИ ======
-// Підключаю маршрути для роботи з нотатками
+
+// Аутентифікація (НЕ захищені маршрути)
+app.use(authRoutes);
+
+// Нотатки (ЗАХИЩЕНІ маршрути - потрібен authenticate)
 app.use(notesRoutes);
 
 // ====== ОБРОБКА ПОМИЛОК ======
+
 // Middleware для обробки 404 (маршрут не знайдено)
 app.use(notFoundHandler);
 
@@ -40,7 +56,8 @@ app.use(errors());
 app.use(errorHandler);
 
 // ====== БД ТА ЗАПУСК СЕРВЕРА ======
-// Підключаюся до MongoDB перед запуском сервера
+
+// Підключення до MongoDB перед запуском сервера
 await connectMongoDB();
 
 app.listen(PORT, () => {

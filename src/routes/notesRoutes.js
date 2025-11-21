@@ -1,3 +1,5 @@
+// МАРШРУТИ ДЛЯ НОТАТОК (ЗАХИЩЕНІ)
+
 import { Router } from 'express';
 import { celebrate } from 'celebrate';
 import {
@@ -13,22 +15,28 @@ import {
   createNoteSchema,
   updateNoteSchema,
 } from '../validations/notesValidation.js';
+import { authenticate } from '../middleware/authenticate.js';
 
 const router = Router();
 
-// GET /notes - отримати всі нотатки з валідацією query параметрів
+// ЗАХИСТ ВСІХ МАРШРУТІВ
+
+// Всі маршрути вимагають аутентифікації
+router.use('/notes', authenticate);
+
+// ---- GET /notes - отримати всі нотатки користувача ----
 router.get('/notes', celebrate(getAllNotesSchema), getAllNotes);
 
-// GET /notes/:noteId - отримати одну нотатку з валідацією noteId
+// ---- GET /notes/:noteId - отримати одну нотатку ----
 router.get('/notes/:noteId', celebrate(noteIdSchema), getNoteById);
 
-// POST /notes - створити нову нотатку з валідацією body
+// ---- POST /notes - створити нову нотатку ----
 router.post('/notes', celebrate(createNoteSchema), createNote);
 
-// PATCH /notes/:noteId - оновити нотатку з валідацією noteId та body
+// ---- PATCH /notes/:noteId - оновити нотатку ----
 router.patch('/notes/:noteId', celebrate(updateNoteSchema), updateNote);
 
-// DELETE /notes/:noteId - видалити нотатку з валідацією noteId
+// ---- DELETE /notes/:noteId - видалити нотатку ----
 router.delete('/notes/:noteId', celebrate(noteIdSchema), deleteNote);
 
 export default router;

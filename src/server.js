@@ -1,7 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
-import cookieParser from 'cookie-parser'; //
+import cookieParser from 'cookie-parser';
 import { errors } from 'celebrate';
 
 import { connectMongoDB } from './db/connectMongoDB.js';
@@ -10,54 +10,57 @@ import { notFoundHandler } from './middleware/notFoundHandler.js';
 import { errorHandler } from './middleware/errorHandler.js';
 import notesRoutes from './routes/notesRoutes.js';
 import authRoutes from './routes/authRoutes.js';
+import userRoutes from './routes/userRoutes.js';
 
 // Завантажую змінні з .env
 dotenv.config();
 
 const app = express();
-const PORT = process.env.PORT || 3030;
+const PORT = process.env.PORT || 3000;
 
 // ====== MIDDLEWARE ======
 
-// 1. Logger - логування HTTP-запитів
+// логування HTTP-запитів
 app.use(logger);
 
-// 2. JSON Parser - обробка JSON у body запиту
+// JSON Parser - обробка JSON у body запиту
 app.use(express.json());
 
-// 3. CORS - запити з інших доменів
+// CORS - запити з інших доменів
 app.use(
   cors({
-    origin: process.env.FRONTEND_URL || '*', // URL фронтенду
-    credentials: true, // КРИТИЧНО для cookies!
+    origin: process.env.FRONTEND_URL || '*',
+    credentials: true,
   }),
 );
 
-// 4. Cookie Parser - обробка cookies
+// Cookie Parser - обробка cookies
 app.use(cookieParser());
 
 // ====== МАРШРУТИ ======
 
-// Аутентифікація (НЕ захищені маршрути)
+// Аутентифікація (НЕ захищені)
 app.use(authRoutes);
 
-// Нотатки (ЗАХИЩЕНІ маршрути - потрібен authenticate)
+// Користувачі (ЗАХИЩЕНІ)
+app.use(userRoutes);
+
+// Нотатки (ЗАХИЩЕНІ)
 app.use(notesRoutes);
 
 // ====== ОБРОБКА ПОМИЛОК ======
 
-// Middleware для обробки 404 (маршрут не знайдено)
+// 404 - маршрут не знайдено
 app.use(notFoundHandler);
 
-// Middleware для обробки помилок валідації від celebrate
+// Помилки валідації celebrate
 app.use(errors());
 
-// Middleware для обробки помилок 500
+// 500 - серверна помилка
 app.use(errorHandler);
 
 // ====== БД ТА ЗАПУСК СЕРВЕРА ======
 
-// Підключення до MongoDB перед запуском сервера
 await connectMongoDB();
 
 app.listen(PORT, () => {

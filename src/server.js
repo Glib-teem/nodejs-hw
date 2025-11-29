@@ -12,6 +12,7 @@ const app = express();
 // Отримую порт та середовище із змінних оточення
 const PORT = process.env.PORT || 3000;
 const NODE_ENV = process.env.NODE_ENV || 'development';
+const isProd = NODE_ENV === 'production';
 
 // ====== MIDDLEWARE ======
 
@@ -75,10 +76,16 @@ app.use((req, res) => {
 });
 
 // Middleware для обробки помилок 500
-app.use((err, req, res, _next) => {
-  const prodMessage = 'Oops, we had an error, sorry 🤫'; // Development: виводимо деталі помилки
 
-  if (NODE_ENV === 'development') {
+app.use((err, req, res, _next) => {
+  if (isProd) {
+    // Production: загальне повідомлення без деталей
+    console.error('Error occurred:', err.message);
+    res.status(500).json({
+      message: 'Oops, we had an error, sorry 🤫',
+    });
+  } else {
+    // Development: повні деталі для дебагу
     console.error('Error details:', err);
     res.status(500).json({
       message: err.message,

@@ -1,9 +1,9 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
-import pino from 'pino-http'; // Логування (З HEAD)
+import pino from 'pino-http'; // Логування
 import { errors } from 'celebrate'; // Обробник помилок валідації
-import cookieParser from 'cookie-parser'; // Обробка cookies (З HEAD)
+import cookieParser from 'cookie-parser'; // Обробка cookies
 
 // 1. ЗАВАНТАЖЕННЯ ЗМІННИХ СЕРЕДОВИЩА
 // Викликаємо dotenv.config() лише один раз
@@ -12,19 +12,17 @@ dotenv.config();
 // Конфігурація середовища та константи
 const NODE_ENV = process.env.NODE_ENV || 'development';
 const isProd = NODE_ENV === 'production';
-// Зберігаємо PORT з HEAD, який визначено коректно на основі .env
 const PORT = process.env.PORT || 3000;
-const prodMessage = 'Oops, we had an error, sorry :(';
+// Повернення до оригінального безпечного повідомлення
+const prodMessage = 'Oops, we had an error, sorry 🤫';
 
 // Імпорти
 import { connectMongoDB } from './db/connectMongoDB.js';
 import { notFoundHandler } from './middleware/notFoundHandler.js';
 import { errorHandler } from './middleware/errorHandler.js';
-// *Примітка: У 05-mail-and-img був імпортований logger, але ми його ігноруємо,
-// оскільки використовуємо pino-http.*
 import notesRoutes from './routes/notesRoutes.js';
 import authRoutes from './routes/authRoutes.js';
-import userRoutes from './routes/userRoutes.js'; // <-- Додано з 05-mail-and-img
+import userRoutes from './routes/userRoutes.js';
 
 const app = express();
 
@@ -64,7 +62,7 @@ app.use(
 // Аутентифікація (НЕ захищені маршрути)
 app.use(authRoutes);
 
-// Користувачі (ЗАХИЩЕНІ маршрути) - Додано з 05-mail-and-img
+// Користувачі (ЗАХИЩЕНІ маршрути)
 app.use('/users', userRoutes);
 
 // Нотатки (ЗАХИЩЕНІ маршрути)
@@ -81,7 +79,7 @@ app.use(errors());
 // Middleware для обробки помилок 500
 app.use(errorHandler);
 
-// Фінальний обробник помилок
+// Фінальний обробник помилок (Повертає безпечне повідомлення у Production)
 app.use((err, req, res, _next) => {
   if (isProd) {
     console.error('Error occurred:', err.message);
@@ -99,7 +97,7 @@ app.use((err, req, res, _next) => {
 
 // ====== БД ТА ЗАПУСК СЕРВЕРА ======
 
-// Підключення до MongoDB перед запуском сервера (Надійна асинхронна функція з HEAD)
+// Підключення до MongoDB перед запуском сервера
 const startServer = async () => {
   try {
     await connectMongoDB();

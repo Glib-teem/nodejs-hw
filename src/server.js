@@ -1,88 +1,78 @@
 import express from 'express';
 import cors from 'cors';
-import helmet from 'helmet';
-import pino from 'pino-http';
 import dotenv from 'dotenv';
+import pino from 'pino-http'; // Припускаю, що ви використовуєте pino-http для логування
 
-dotenv.config({ override: false });
+// 1. ЗАВАНТАЖЕННЯ ЗМІННИХ СЕРЕДОВИЩА
+// Викликаємо dotenv.config() лише один раз
+dotenv.config();
 
-// Створюю Express додаток
-const app = express();
-
-// Отримую порт та середовище із змінних оточення
-const PORT = process.env.PORT || 3000;
+// Конфігурація середовища та константи
 const NODE_ENV = process.env.NODE_ENV || 'development';
 const isProd = NODE_ENV === 'production';
+const PORT = process.env.PORT || 3000;
+// Припускаємо, що prodMessage використовується для безпечного повідомлення
+const prodMessage = 'Oops, we had an error, sorry 🤫';
+
+// Імпорти
+import { connectMongoDB } from './db/connectMongoDB.js';
+// import { logger } from './middleware/logger.js';
+import { notFoundHandler } from './middleware/notFoundHandler.js';
+import { errorHandler } from './middleware/errorHandler.js';
+import notesRoutes from './routes/notesRoutes.js';
+// *Слід додати інші маршрути (authRoutes, userRoutes) після злиття гілок*
+
+const app = express();
 
 // ====== MIDDLEWARE ======
 
-// 1. Helmet - захист через HTTP заголовки
-app.use(helmet());
-
-// 2. CORS - дозволяє запити з інших доменів
+// 1. CORS - запити з інших доменів
 app.use(cors());
 
-// 3. JSON Parser - дозволяє обробляти JSON у body запиту
+// 2. JSON Parser - обробка JSON у body запиту
 app.use(express.json());
 
-// 4. Logger - логує всі HTTP-запити
-
+// 3. Pino Logger - логує всі HTTP-запити
+// Використовуємо pino-http замість кастомного logger, щоб уникнути дублювання
 app.use(
-  pino(
-    NODE_ENV === 'development'
-      ? {
-          transport: {
-            target: 'pino-pretty',
-            options: {
-              colorize: true,
-            },
+  pino({
+    transport:
+      NODE_ENV === 'development'
+        ? {
+          target: 'pino-pretty',
+          options: {
+            colorize: true,
           },
         }
-      : {
-          level: 'info',
-        },
-  ),
+        : undefined, // В продакшні використовуємо стандартний JSON-формат
+  }),
 );
+
+// 4. Додаткове логування (Якщо ви вирішили його залишити)
+// app.use(logger);
 
 // ====== МАРШРУТИ ======
 
-// GET /notes - отримати всі нотатки
-app.get('/notes', (req, res) => {
-  res.status(200).json({
-    message: 'Retrieved all notes',
-  });
-});
-
-// GET /notes/:noteId - отримати нотатку за ID
-app.get('/notes/:noteId', (req, res) => {
-  const { noteId } = req.params;
-  res.status(200).json({
-    message: `Retrieved note with ID: ${noteId}`,
-  });
-});
-
-// GET /test-error - тестовий маршрут для імітації помилки
-app.get('/test-error', () => {
-  throw new Error('Simulated server error');
-});
+// Підключаю маршрути (слід додати authRoutes та userRoutes після злиття)
+app.use('/notes', notesRoutes); // Рекомендується додавати префікс до маршрутів
 
 // ====== ОБРОБКА ПОМИЛОК ======
 
 // Middleware для обробки 404 (маршрут не знайдено)
-app.use((req, res) => {
-  res.status(404).json({
-    message: 'Route not found',
-  });
-});
+app.use(notFoundHandler);
 
 // Middleware для обробки помилок 500
+app.use(errorHandler);
 
+// Виправлений фінальний обробник помилок (потрібен лише один!)
+// *Цей блок повинен бути останнім, інакше він може перехопити помилки,
+// які мали бути оброблені іншими middleware.*
 app.use((err, req, res, _next) => {
   if (isProd) {
     // Production: загальне повідомлення без деталей
     console.error('Error occurred:', err.message);
     res.status(500).json({
-      message: 'Oops, we had an error, sorry 🤫',
+      message: prodMessage,
     });
   } else {
     // Development: повні деталі для дебагу
@@ -90,17 +80,25 @@ app.use((err, req, res, _next) => {
     res.status(500).json({
       message: err.message,
       stack: err.stack,
-    }); // Production: виводимо загальне, безпечне повідомлення
-  } else {
-    console.error('Error:', err.message);
-    res.status(500).json({
-      message: prodMessage, // <--- Виводимо безпечне повідомлення
     });
   }
 });
 
-// ====== ЗАПУСК СЕРВЕРА ======
+// ====== БД ТА ЗАПУСК СЕРВЕРА ======
 
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT} in ${NODE_ENV} mode`);
-});
+// Підключаюся до MongoDB перед запуском сервера
+// Використовуємо `await` для очікування підключення
+const startServer = async () => {
+  try {
+    await connectMongoDB();
+
+    app.listen(PORT, () => {
+      console.log(`Server running on port ${PORT}`);
+    });
+  } catch (error) {
+    console.error('Failed to start server:', error);
+    process.exit(1); // Вихід з процесу у разі помилки підключення
+  }
+};
+
+startServer();

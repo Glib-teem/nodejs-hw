@@ -1,22 +1,26 @@
-import { HttpError } from 'http-errors';
+// MIDDLEWARE ДЛЯ ОБРОБКИ ПОМИЛОК
 
-export const errorHandler = (err, req, res, _next) => {
-  console.error('Error Middleware:', err);
-
-  const isProd = process.env.NODE_ENV === 'production';
-
-  // Обробка HTTP-помилок (створених через http-errors)
-  if (err instanceof HttpError) {
-    return res.status(err.status).json({
-      message:
-        isProd && err.status === 500
-          ? 'Oops, we had an error, sorry 🤫'
-          : err.message || err.name,
+export const errorHandler = (error, req, res, _next) => {
+  // Обробка помилок Multer
+  if (error.name === 'MulterError') {
+    if (error.code === 'LIMIT_FILE_SIZE') {
+      return res.status(400).json({
+        status: 400,
+        message: 'File too large. Maximum size is 2MB',
+      });
+    }
+    return res.status(400).json({
+      status: 400,
+      message: error.message,
     });
   }
 
-  // Усі інші помилки - як внутрішні (500)
-  res.status(500).json({
-    message: isProd ? 'Oops, we had an error, sorry 🤫' : err.message,
+  // Обробка інших помилок
+  const status = error.status || 500;
+  const message = error.message || 'Internal Server Error';
+
+  res.status(status).json({
+    status,
+    message,
   });
 };

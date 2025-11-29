@@ -1,10 +1,44 @@
 import createHttpError from 'http-errors';
 import { Note } from '../models/note.js';
 
-// GET /notes - Отримати всі нотатки
+// GET /notes - Отримати всі нотатки з пагінацією, фільтрацією та пошуком
 export const getAllNotes = async (req, res) => {
-  const notes = await Note.find();
-  res.status(200).json(notes);
+  // Отримую параметри з query
+  const { page = 1, perPage = 10, tag, search } = req.query;
+
+  // Обчислюю скільки записів пропустити
+  const skip = (page - 1) * perPage;
+
+  // Створюю базовий запит
+  const notesQuery = Note.find();
+
+  // Фільтр за тегом
+  if (tag) {
+    notesQuery.where('tag').equals(tag);
+  }
+
+  // Текстовий пошук
+  if (search) {
+    notesQuery.where({ $text: { $search: search } });
+  }
+
+  // Два запити паралельно
+  const [totalNotes, notes] = await Promise.all([
+    notesQuery.clone().countDocuments(),
+    notesQuery.skip(skip).limit(perPage).sort({ createdAt: -1 }),
+  ]);
+
+  // Обчисляю загальну кількість сторінок
+  const totalPages = Math.ceil(totalNotes / perPage);
+
+  // Відправляю відповідь
+  res.status(200).json({
+    page: Number(page),
+    perPage: Number(perPage),
+    totalNotes,
+    totalPages,
+    notes,
+  });
 };
 
 // GET /notes/:noteId - Отримати одну нотатку за ID
